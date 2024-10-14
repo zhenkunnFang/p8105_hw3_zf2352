@@ -9,11 +9,65 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r include=FALSE}
+library(tidyverse)
+library(ggridges)
+library(patchwork)
 
 library(p8105.datasets)
 data("ny_noaa")
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
 ```
 
 # Problem 1
+This dataset consists of `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns. The variables include the weather station ID, observation date, precipitation (measured in tenths of millimeters), snowfall (in millimeters), snow depth (in millimeters), and both minimum and maximum temperatures (in tenths of degrees Celsius).
+
+```{r}
+ny_noaa %>% 
+  count(tmax) %>%
+  arrange(desc(n))
+
+ny_noaa %>% 
+  count(tmin) %>%
+  arrange(desc(n))
+```
+
+For vairbles `tmax` and `tmin`, nearly half of the observations are `NA`, indicating that there is a serious issue of missing data.
+
+```{r}
+ny_noaa %>% 
+  count(snow) %>%
+  arrange(desc(n))
+
+ny_noaa = 
+  ny_noaa %>% 
+  separate(date, into = c("year", "month", "day"), convert = TRUE) %>% 
+  mutate(
+    tmax = as.numeric(tmax),
+    tmin = as.numeric(tmin))
+```
+
+For the variable `snow`, the most frequently observed value is 0, reflecting that snowfall does not occur on most days in NY. The second most common value is `NA`, indicating missing data.
+
+```{r two-panel plot}
+ny_noaa %>% 
+  group_by(id, year, month) %>% 
+  filter(month %in% c(1, 7)) %>% 
+  summarize(mean_tmax = mean(tmax, na.rm = TRUE, color = id)) %>% 
+  ggplot(aes(x = year, y = mean_tmax, group = id)) + geom_point() + geom_path() +
+  facet_grid(~month) +
+  labs(title = "Mean monthly temperature for each station across years for January and July",
+       x = "Year",
+       y = "Average max temperature")
+```
+
+The two-panel plot below displays the average maximum temperature in January and July across stations over the years. As expected, the mean temperature in January is significantly lower than in July for all stations and years. The stations generally follow similar temperature patterns, with peaks and valleys within each month across the years—when one station has a high monthly mean temperature for a given year, most other stations exhibit a similar trend. However, there is one notably cold station in July of 1987 or 1988, along with a few other less extreme outliers.
+
 
