@@ -1,0 +1,19 @@
+---
+title: "HW3"
+author: "Zhenkun Fang"
+date: "2024-10-14"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(p8105.datasets)
+data("ny_noaa")
+```
+
+# Problem 1
+
