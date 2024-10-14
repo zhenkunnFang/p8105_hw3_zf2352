@@ -70,4 +70,23 @@ ny_noaa %>%
 
 The two-panel plot below displays the average maximum temperature in January and July across stations over the years. As expected, the mean temperature in January is significantly lower than in July for all stations and years. The stations generally follow similar temperature patterns, with peaks and valleys within each month across the years—when one station has a high monthly mean temperature for a given year, most other stations exhibit a similar trend. However, there is one notably cold station in July of 1987 or 1988, along with a few other less extreme outliers.
 
+```{r another two-panel plot}
+hex = 
+  ny_noaa %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_hex()
+
+ridge = 
+  ny_noaa %>% 
+  filter(snow < 100, snow > 0) %>% 
+  ggplot(aes(x = tmax, y = as.factor(year))) + 
+  geom_density_ridges(scale = .90)
+  
+hex+ridge
+```
+
+# Problem 2
+```{r load, tidy, merge datasets}
+
+```
 
