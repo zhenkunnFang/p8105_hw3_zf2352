@@ -131,3 +131,32 @@ mims = demodata %>%
   )
 ```
 
+```{r produce table}
+mims_table = mims %>% 
+  count(sex, education) %>% 
+  spread(sex, n) %>% 
+  knitr::kable()
+
+mims_table
+```
+
+```{r create visualization}
+mims_ridge = mims %>% 
+  ggplot(aes(x = age, y = as.factor(education))) + 
+  facet_grid(~sex) +
+  geom_density_ridges(scale = .90) +
+  labs(
+    title = "Age distributions for men and women in each education category",
+    x = "Age (years)",
+    y = "Education"
+  )
+
+mims_ridge
+```
+
+The distribution across education levels shows that there is a fairly balanced gender representation in the "Less than high school" and "More than high school" categories. However, for the "High school equivalent" category, there is a notable gender disparity, with more males than females.
+
+The gender distribution within each education category is relatively balanced, though there are slight variations, particularly in the "High school equivalent" category where males outnumber females around the age of 30. For both sexes, participants with "Less than high school" education tend to be older, particularly concentrated in the 60-80 age range, which might suggest that older individuals in this dataset tend to have less formal education.
+
+
+
