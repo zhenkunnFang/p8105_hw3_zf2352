@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggridges)
 library(patchwork)
+library(readr)
+library(dplyr)
 
 library(p8105.datasets)
 data("ny_noaa")
@@ -86,7 +88,46 @@ hex+ridge
 ```
 
 # Problem 2
-```{r load, tidy, merge datasets}
+```{r load datasets}
+demodata = 
+  read_csv("/Users/rubp/Desktop/Data Sci 1/Week7/p8105_hw3_zf2352/nhanes_covar.csv",
+            na = c("NA", ".", "")) %>% 
+  janitor::clean_names() 
 
+accel = 
+  read_csv("/Users/rubp/Desktop/Data Sci 1/Week7/p8105_hw3_zf2352/nhanes_accel.csv",
+            na = c("NA", ".", "")) %>% 
+  janitor::clean_names()
+```
+
+```{r tidy, merge, and organize datasets}
+demodata = 
+  demodata[-c(1 ,2 ,3 , 4), ]
+
+colnames(demodata) [1] = "seqn"
+colnames(demodata) [2] = "sex"
+colnames(demodata) [3] = "age"
+colnames(demodata) [4] = "bmi"
+colnames(demodata) [5] = "education"
+
+demodata = demodata %>% 
+  mutate(seqn = as.numeric(seqn))
+
+accel = accel %>% 
+  mutate(seqn = as.numeric(seqn))
+
+mims = demodata %>% 
+  left_join(accel, by = "seqn") %>% 
+  drop_na(bmi, education) %>% 
+  filter(age >= 21) %>% 
+  mutate(
+    sex = factor(sex, levels = c(1, 2), labels = c("Male", "Female")),
+    education = factor(education, levels = c(1, 2, 3), 
+                       labels = c("Less than high school",
+                              "High school equivalent",
+                              "More than high school")),
+    age = as.numeric(age),
+    bmi = as.numeric(bmi)
+  )
 ```
 
