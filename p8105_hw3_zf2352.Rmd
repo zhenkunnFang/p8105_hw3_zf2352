@@ -1,7 +1,7 @@
 ---
 title: "HW3"
 author: "Zhenkun Fang"
-date: "2024-10-14"
+date: "2024-10-16"
 output: github_document
 ---
 
@@ -15,7 +15,6 @@ library(ggridges)
 library(patchwork)
 library(readr)
 library(dplyr)
-
 library(p8105.datasets)
 data("ny_noaa")
 
@@ -196,7 +195,7 @@ mims_total_long = mims_total %>%
   summarise(avg_activity = mean(activity, na.rm = TRUE))
 ```
 
-```{r plot}
+```{r plot-24 hour}
 mims_total_long %>% 
   ggplot(aes(x = minute, y = avg_activity, color = sex)) +
   geom_line(alpha = .5) +  
@@ -280,3 +279,69 @@ citi_bike %>%
   knitr::kable()
 ```
 
+Both casual and member ridership increased from 2020 to 2024, suggesting a growth in the Citi Bike system's overall usage.
+
+The seasonal variation is clear, with July showing higher ridership compared to January in both years, likely due to weather conditions.
+
+```{r table-5 most popular stations}
+jul_2024 %>% 
+  group_by(start_station_name) %>%
+  summarise(ride_count = n()) %>%
+  arrange(desc(ride_count)) %>%
+  head(5) %>% 
+  knitr::kable()
+```
+
+```{r}
+median_duration_data = citi_bike %>%
+  group_by(weekdays, month, year) %>%
+  summarise(median_duration = median(duration, na.rm = TRUE))
+
+median_duration_data$weekdays <- factor(median_duration_data$weekdays, 
+                                        levels = c("Monday", "Tuesday", 
+                                                   "Wednesday", "Thursday", 
+                                                   "Friday", "Saturday",
+                                                   "Sunday"))
+```
+
+```{r plot}
+median_duration_data %>% 
+  ggplot(aes(x = weekdays, y = median_duration, fill = month)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ year, scales = "free") +  
+  labs(title = "Median Ride Duration by Weekdays, Month, and Year",
+       x = "Day of the Week",
+       y = "Median Ride Duration (minutes)",
+       fill = "Year") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Across both 2020 and 2024, the median ride duration in July is consistently higher than in January for all days of the week. This is likely due to the more favorable weather conditions in July, which encourages longer rides.
+
+In both years, the median ride duration appears to be higher on weekends (Saturday and Sunday) compared to weekdays, suggesting that people may engage in longer rides for recreational purposes on weekends.
+
+In 2024, the overall median ride durations for both January and July are slightly lower compared to 2020. This could indicate that rides have become shorter on average, possibly due to changes in user behavior, bike availability, or other external factors.
+
+```{r}
+data_2024 = citi_bike %>% 
+  filter(year == 2024)
+
+ggplot(data_2024, aes(x = member_casual, y = duration, fill = rideable_type)) +
+  geom_violin(scale = "width", adjust = 1.5, trim = FALSE) +
+  facet_wrap(~ month) +
+  labs(title = "Impact of Month, Membership Status, and Bike Type on Ride Duration (2024)",
+       x = "Membership Status",
+       y = "Ride Duration (minutes)",
+       fill = "Bike Type") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Electric bikes (in blue) generally show shorter ride durations compared to classic bikes (in red) across all groups, particularly among members. This suggests that electric bikes are predominantly used for shorter trips, likely due to their higher speed and convenience for quick commutes.
+
+Casual riders using classic bikes have a wider range of ride durations compared to members, with some rides extending up to or beyond 200 minutes. This could indicate that casual riders use the bikes more for leisure or tourism-related activities, whereas members typically take shorter, more consistent trips, possibly for commuting or other routine purposes.
+
+In July, ride durations are slightly more variable than in January, particularly for casual riders. The warmer weather in July might encourage longer, more leisurely rides, especially for casual users.
+
+Members consistently take shorter trips with less variation in ride duration, regardless of the bike type or month.
