@@ -214,3 +214,69 @@ Across all education levels, the activity levels follow a similar daily pattern,
 In general, women appear to have slightly higher activity levels throughout the day compared to men across all education levels, especially during the peak activity hours around midday. The smooth trends for women (in teal) often show a more sustained or higher peak of activity than men (in red), particularly in the "High school equivalent" and "More than high school" groups.
 
 Participants with more education tend to have higher activity levels overall, especially during the peak hours of the day. In the "more than high school" group, the curves for both men and women show a higher midday peak, which could suggest a more active and structured lifestyle. Women in this group show a particularly strong midday peak, indicating higher physical engagement during daytime hours.
+
+# Probelm 3
+```{r import and clean data}
+jan_2020 = 
+  read_csv("/Users/rubp/Desktop/Data Sci 1/Week7/p8105_hw3_zf2352/citibike/Jan 2020 Citi.csv", na = c("NA", ".", "")) %>% 
+  janitor::clean_names() 
+
+jan_2024 = 
+  read_csv("/Users/rubp/Desktop/Data Sci 1/Week7/p8105_hw3_zf2352/citibike/Jan 2024 Citi.csv",
+            na = c("NA", ".", "")) %>% 
+  janitor::clean_names()
+
+jul_2020 = 
+  read_csv("/Users/rubp/Desktop/Data Sci 1/Week7/p8105_hw3_zf2352/citibike/July 2020 Citi.csv",
+            na = c("NA", ".", "")) %>% 
+  janitor::clean_names()
+
+jul_2024 = 
+  read_csv("/Users/rubp/Desktop/Data Sci 1/Week7/p8105_hw3_zf2352/citibike/July 2024 Citi.csv",
+            na = c("NA", ".", "")) %>% 
+  janitor::clean_names()
+```
+
+```{r}
+citi_bike = bind_rows(
+  jan_2020 |>
+    mutate(month = "January", year = 2020),
+  jul_2020 |>
+    mutate(month = "July", year = 2020),
+  jan_2024 |>
+    mutate(month = "January", year = 2024),
+  jul_2024 |>
+    mutate(month = "July", year = 2024)
+) |>
+  relocate(year, month) |>
+  drop_na(start_station_name, end_station_name, member_casual)
+```
+
+The dataset have 9 columns and more than 99253 observations:
+
+- year: year of data collection time.
+
+- month: month of data collection time.
+
+- ride_id: Unique identifier for each ride. 
+
+- rideable_type: Type of bike (e.g., classic bike). 
+
+- weekdays: Day of the week the ride occurred. 
+
+- duration: Duration of the ride in minutes. 
+
+- start_station_name: Station where the ride started. 
+
+- end_station_name: Station where the ride ended. 
+
+- member_casual: Type of user (member or casual).
+
+```{r create table}
+citi_bike %>% 
+  group_by(year, month, member_casual) %>% 
+  summarize(total_rides = n()) %>% 
+  spread(member_casual, total_rides, fill = 0) %>% 
+  knitr::kable()
+```
+
